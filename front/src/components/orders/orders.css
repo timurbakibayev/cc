@@ -1,0 +1,14 @@
+.CompanyCard {
+    margin: 20px;
+    zoom: 0.8;
+}
+
+.error {
+    color: red;
+}
+
+.centerText {
+    text-align: center;
+    font-size: x-large;
+    margin: 30px;
+}

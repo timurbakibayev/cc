@@ -1,0 +1,135 @@
+.html {
+    height: 100%
+}
+
+.cardExpandableHeader {
+    background: #c7ddef;
+    font-size: 1em;
+    zoom: 0.8;
+}
+
+.CompanyCard {
+    margin: 0.5em;
+    zoom: 0.8;
+    display: flex;
+    flex-direction: row;
+}
+
+.error {
+    color: red;
+    text-align: center;
+    padding: 1%;
+}
+
+.centerText {
+    text-align: center;
+    font-size: x-large;
+    margin: 30px;
+}
+
+.authForm {
+    padding: 1em;
+    margin-top: 3em;
+    margin-left: 10%;
+    margin-right: 10%;
+    textAlign: 'center';
+}
+
+.cardInGrid {
+    display: flex;
+    flex-direction: column;
+    padding: 2%;
+    margin-top: 2%;
+    max-height: 25em;
+    textAlign: 'center';
+    overflow: auto;
+}
+
+.gridTile {
+    width: 95%;
+    padding: 1%;
+    zoom: 0.8;
+}
+
+.formLogin {
+    padding: 5%;
+    text-align: center;
+}
+
+.formUpload {
+    text-align: center;
+}
+
+.formSearch {
+    vertical-align: top;
+    text-align: center;
+    color: white;
+}
+
+.mdl-layout__header {
+    background: #507299;
+    border-bottom: 1px solid #466991;
+}
+
+.mdl-layout__content {
+    margin-top: 20px;
+}
+
+.mdl-layout__drawer-button {
+    line-height: 48px;
+}
+
+.to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+}
+
+.header-text {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 20px;
+    color: #616161
+}
+
+.loading {
+    display: block;
+    position: absolute;
+    text-align: center;
+    margin: auto;
+    vertical-align: middle;
+}
+
+.imgInCard {
+    z-index: 2;
+    margin: auto;
+    max-width: 5em;
+}
+
+.details {
+    display: flex;
+    flexDirection: 'row';
+    vertical-align: middle;
+}
+
+.content {
+    flex: 1 0 auto;
+}
+
+.avatar {
+    margin: 0.5em;
+    width: 5em;
+    height: 5em;
+    margin: auto;
+    border-radius: 50%;
+}
+
+.react-autosuggest input {
+    width: 240px;
+    height: 30px;
+    padding: 5px 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}

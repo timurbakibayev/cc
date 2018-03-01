@@ -44,16 +44,16 @@ module.exports = function (env) {
                  * 这里的配置设定为，如果有 error，那么就不能继续构建
                  * https://github.com/MoOx/eslint-loader
                  */
-                {
-                    enforce: "pre",
-                    test: /\.js$/,
-                    include: path.resolve(__dirname, 'src'),
-                    loader: "eslint-loader",
-                    options: {
-                        failOnError: true,
-                        fix: true
-                    }
-                },
+                // {
+                //     enforce: "pre",
+                //     test: /\.js$/,
+                //     include: path.resolve(__dirname, 'src'),
+                //     loader: "eslint-loader",
+                //     options: {
+                //         failOnError: true,
+                //         fix: true
+                //     }
+                // },
                 /**
                  * babel-loader
                  * 将 es6 转化为 es5
@@ -119,6 +119,17 @@ module.exports = function (env) {
                     query: {
                         name: 'static/media/[name].[hash:8].[ext]'
                     }
+                },
+                {
+                    test: /\.(png|jpg|gif)$/,
+                    use: [
+                        {
+                            loader: 'url-loader',
+                            options: {
+                                limit: 8192
+                            }
+                        }
+                    ]
                 }
             ]
         },

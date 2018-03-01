@@ -1,11 +1,19 @@
 {
   "name": "front",
   "dependencies": {
-    "material-ui": "^0.20.0",
+    "material-ui": "^1.0.0-beta.35",
     "material-ui-icons": "^1.0.0-beta.35",
     "moment": "^2.20.1",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-chat-ui": "^0.3.1",
+    "react-chat-widget": "^2.1.2",
+    "react-dom": "^15.5.4",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
+    "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.2.0"
   },
   "version": "0.1.0",
   "devDependencies": {
@@ -29,6 +37,7 @@
     "postcss-loader": "^2.0.5",
     "react-dev-utils": "^1.0.0",
     "style-loader": "^0.17.0",
+    "url-loader": "^0.6.2",
     "webpack": "^2.5.1",
     "webpack-dev-server": "^2.4.5"
   },

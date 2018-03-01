@@ -1,28 +1,27 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import MainComponent from './components/Main.js';
+import {HashRouter, Route, Switch} from 'react-router-dom';
+import logo from './logo_centras.png';
 
 class App extends Component {
-    state = { loading: false };
-
     componentDidMount() {
-        // 测试 devServer 的代理功能
-        // fetch('/api/category')
-        //     .then(resp => resp.json())
-        //     .then(res => console.log('here here', res));
+        document.title = "Chat Center";
     }
 
     render() {
         return (
-            <div className="App">
-                <div className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <h2>Welcome to React</h2>
-                </div>
-                <p>Loading: { this.state.loading.toString() }</p>
-                <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-                </p>
+            <div className="App" style={{height: '100%'}}>
+                <header className="App-header" style={{backgroundColor: "#be123d"}}>
+                    <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> Centras Insurance Chat Center
+                        </h1>
+                </header>
+                <HashRouter>
+                    <Switch>
+                        <Route render={(props) => (<MainComponent {...props}/>)}/>
+                    </Switch>
+                </HashRouter>
+
             </div>
         );
     }

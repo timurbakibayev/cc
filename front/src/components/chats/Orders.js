@@ -10,7 +10,7 @@ import * as actionsGendirs from '../../actions/gendirs';
 import * as actionsFields from '../../actions/fields';
 import * as actionType from '../../actionTypes'
 import {Switch, Route} from 'react-router-dom';
-import OrderCardComponent from './OrderCard'
+import OrderCardComponent from './Chats'
 import Loading from '../Loading'
 import NewOrderForm from './NewOrderForm'
 import CloseOrderForm from './CloseOrderForm'

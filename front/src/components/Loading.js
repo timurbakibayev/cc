@@ -9,7 +9,6 @@ class LoadingComponent extends Component {
             <div className="loading">
                 <CircularProgress color="accent" size={50} />
             </div>
-
         );
     }
 }

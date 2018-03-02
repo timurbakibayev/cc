@@ -1,3 +1,7 @@
 src/settings.py
 **/*.pyc
 src/data/*
+*.sqlite3
+venv/
+.idea
+npm-debug.log

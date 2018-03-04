@@ -95,8 +95,16 @@ class _ChatsComponent extends Component {
                         ,500)
                 } else {
                     let the_customer = customers.filter((c)=>c.id === customer.id)[0];
+                    if (customer.reply.length > 0 && the_customer.reply.length === 0)
+                        the_customer.reply = customer.reply;
                     if (the_customer.messages.length !== customer.messages.length) {
                         the_customer.messages = customer.messages;
+                        this.setState({
+                            customers: [
+                                ...this.state.customers.filter((c) => c.id !== the_customer.id),
+                                the_customer]
+                                .sort((i, j) => i.order < j.order ? -1 : 1)
+                        });
                         setTimeout(
                             ()=>{
                                 try {

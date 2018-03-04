@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from cc import logging
+from cc import telegram
 
 
 @api_view(['POST'])
@@ -28,6 +28,11 @@ def new_message(request):
         the_message.isReply = True
         the_message.message = message
         the_message.save()
+        try:
+            if the_message.customer.device_type == "telegram":
+                telegram.reply(the_message.customer.device_id, the_message.message)
+        except Exception as e:
+            print("failed to send to customer: " + str(e))
         return Response({"result":"ok"}, status=status.HTTP_201_CREATED)
 
 
@@ -44,6 +49,14 @@ def messages(request):
                 "id": customer.id,
                 "reply": customer.reply,
                 "name": customer.name,
-                "messages": messages});
+                "messages": messages})
         return HttpResponse(json.dumps(filtered_list))
 
+
+@csrf_exempt
+def hide(request, pk):
+    if request.method == "GET":
+        Customer.objects.get(pk=pk)
+        Customer.hidden = True
+        Customer.save()
+        return HttpResponse(json.dumps({"Result":"Hidden"}))

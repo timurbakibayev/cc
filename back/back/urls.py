@@ -19,6 +19,7 @@ from cc import views
 
 urlpatterns = [
     url('admin/', admin.site.urls),
+    url(r'hide/(?P<pk>[0-9]+)/',views.messages),
     url(r'messages/',views.messages),
     url(r'new_message/',views.new_message),
 ]

@@ -97,6 +97,7 @@ class _ChatsComponent extends Component {
                     let the_customer = customers.filter((c)=>c.id === customer.id)[0];
                     if (customer.reply.length > 0 && the_customer.reply.length === 0)
                         the_customer.reply = customer.reply;
+                    the_customer.name = customer.name;
                     if (the_customer.messages.length !== customer.messages.length) {
                         the_customer.messages = customer.messages;
                         this.setState({
@@ -122,7 +123,7 @@ class _ChatsComponent extends Component {
     }
 
     componentDidMount() {
-        setInterval(this.refreshMessages.bind(this), 2000);
+        setInterval(this.refreshMessages.bind(this), 3000);
         this.state.customers.forEach((customer) => {
             try {
                 const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
@@ -172,9 +173,9 @@ class _ChatsComponent extends Component {
         const text = await response.text();
         if (response.status === 201) {
 
-            // customer.messages.push(
-            //     new Message({id: 0, message: customer.reply}),
-            // );
+            customer.messages.push(
+                new Message({id: 0, message: customer.reply}),
+            );
             customer.sending = false;
             customer.reply = "";
             this.setState({

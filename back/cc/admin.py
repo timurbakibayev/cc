@@ -1,3 +1,5 @@
 from django.contrib import admin
+from cc.models import *
 
-# Register your models here.
+admin.site.register(Customer)
+admin.site.register(Message)

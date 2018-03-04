@@ -6,6 +6,8 @@ import Typography from 'material-ui/Typography';
 
 import Paper from 'material-ui/Paper';
 
+import SendIcon from 'material-ui-icons/Message';
+
 import './../general.css'
 import {Link} from 'react-router-dom';
 
@@ -28,6 +30,12 @@ const styles = {
     },
 };
 
+const isDevBuild = (process.env.NODE_ENV === 'development');
+const URL = isDevBuild ? "http://localhost:8000/" : "/";
+const token = "default_token";
+const url_messages = `${URL}messages/`;
+const url_new_message = `${URL}new_message/`;
+
 class _ChatsComponent extends Component {
 
     constructor(e) {
@@ -35,16 +43,16 @@ class _ChatsComponent extends Component {
         this.messagesRef = {};
         this.state = {
             editField: {},
-            clients: [
+            customers: [
                 {
                     id: 10,
-                    name: "Timur Bakibayev",
+                    name: "Загрузка...",
                     messages: [
                         new Message({
                             id: 1,
-                            message: "I'm the recipient! (The person you're talking to)",
+                            message: "Сообщения загружаются",
                         }), // Gray bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
+                        new Message({id: 0, message: "ОК, я жду..."}), // Blue bubble
                     ],
                     is_typing: false,
                     expanded: true,
@@ -52,47 +60,7 @@ class _ChatsComponent extends Component {
                     reply: "",
                     ref: null,
                 },
-                {
-                    id: 12,
-                    name: "Kuanysh Abeshev",
-                    messages: [
-                        new Message({
-                            id: 1,
-                            message: "I'm the recipient! (The person you're talking to)",
-                        }), // Gray bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 1, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 1, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                    ],
-                    is_typing: false,
-                    expanded: true,
-                    order: 3,
-                    reply: "Привет, Куаныш!",
-                    ref: null,
-                },
-                {
-                    id: 130,
-                    name: "Zhanna Malikova",
-                    messages: [
-                        new Message({
-                            id: 1,
-                            message: "I'm the recipient! (The person you're talking to)",
-                        }), // Gray bubble
-                        new Message({id: 0, message: "I'm you -- the blue bubble!"}), // Blue bubble
-                    ],
-                    is_typing: false,
-                    expanded: true,
-                    order: 2,
-                    reply: "Привет, Жанна!",
-                    ref: null,
-                },
-            ].sort( (i,j) => i.order < j.order? -1: 1),
+            ].sort((i, j) => i.order < j.order ? -1 : 1),
         }
     }
 
@@ -101,10 +69,42 @@ class _ChatsComponent extends Component {
         console.log("Chat Component Will Mount", this.props);
     }
 
+    async refreshMessages() {
+        console.log("Requesting from " + url_messages + "...");
+        var response = await(fetch(
+            url_messages,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `JWT ${ token }`
+                }
+            }
+        ));
+        const text = await response.text();
+        if (response.status === 200) {
+            const customers = JSON.parse(text).sort((i, j) => i.order < j.order ? -1 : 1);
+            customers.forEach((customer) => {
+                customer.expanded = true;
+                customer.sending = false;
+                var messageObjects = [];
+                customer.messages.forEach((message) => {
+                    messageObjects.push(new Message(message));
+                });
+                customer.messages = messageObjects;
+            });
+
+            this.setState({customers: customers});
+            console.log("messages", customers);
+        }
+    }
+
     componentDidMount() {
-        this.state.clients.forEach((client) => {
+        this.refreshMessages();
+        this.state.customers.forEach((customer) => {
             try {
-                const objDiv = findDOMNode(this).querySelector('.chat'+client.id);
+                const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
                 objDiv.scrollTop = 100000;
             } catch (e) {
                 console.log(e);
@@ -118,55 +118,92 @@ class _ChatsComponent extends Component {
         });
     };
 
-    onMessageSubmit(client, e) {
+    async onMessageSubmit(customer, e) {
         e.preventDefault();
-        console.log("New message push client ", client.name + ": " + client.reply);
+        console.log("New message push customer ", customer.name + ": " + customer.reply);
+        customer.sending = true;
+        this.setState({
+            customers: [
+                ...this.state.customers.filter((c) => c.id !== customer.id),
+                customer]
+                .sort((i, j) => i.order < j.order ? -1 : 1)
+        });
 
-        client.messages.push(
-            new Message({id: 0, message: client.reply}),
-        );
-        client.reply = "";
-        this.setState({clients: [
-            ...this.state.clients.filter((c)=>c.id !== client.id),
-            client]
-            .sort( (i,j) => i.order < j.order? -1: 1)});
-        try {
-            const objDiv = findDOMNode(this).querySelector('.chat'+client.id);
-            objDiv.scrollTop = 100000;
-        } catch (e) {
-            console.log(e);
+        const response = await(fetch(
+            url_new_message,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `JWT ${ token }`
+                },
+                body: JSON.stringify({
+                    customer: customer.id,
+                    message: customer.reply,
+                }),
+            }
+        ));
+
+        const text = await response.text();
+        if (response.status === 201) {
+            customer.messages.push(
+                new Message({id: 0, message: customer.reply}),
+            );
+            customer.reply = "";
+            this.setState({
+                customers: [
+                    ...this.state.customers.filter((c) => c.id !== customer.id),
+                    customer]
+                    .sort((i, j) => i.order < j.order ? -1 : 1)
+            });
+            try {
+                const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
+                objDiv.scrollTop = 100000;
+            } catch (e) {
+                console.log(e);
+            }
+        } else {
+            alert("We've got problem: " + response.status);
+            customer.sending = false;
+            this.setState({
+                customers: [
+                    ...this.state.customers.filter((c) => c.id !== customer.id),
+                    customer]
+                    .sort((i, j) => i.order < j.order ? -1 : 1)
+            });
         }
     }
 
-    renderSingleChat(client) {
-        var h17 = client.expanded?"17em":"auto";
-        var h15 = client.expanded?"15em":"auto";
+    renderSingleChat(customer) {
+        var h17 = customer.expanded ? "17em" : "auto";
+        var h15 = customer.expanded ? "15em" : "auto";
 
         return (
-            <div key={client.id} style={{display: "flex", flexFlow: "column"}}>
+            <div key={customer.id} style={{display: "flex", flexFlow: "column"}}>
                 <Paper elevation={10} style={{width: "300px", maxWidth: "300px", margin: "10px", height: h17}}>
-                    <Typography onClick={()=>{
-                        client.expanded = !client.expanded;
-                        this.setState({clients: [...this.state.clients.filter((c)=>c.id !== client.id), client].sort( (i,j) => i.order < j.order? -1: 1)});
+                    <Typography onClick={() => {
+                        customer.expanded = !customer.expanded;
+                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
                         const el = this;
                         setTimeout(function () {
-                            el.setState({clients: [...el.state.clients.filter((c)=>c.id !== client.id)].sort( (i,j) => i.order < j.order? -1: 1)});
+                            el.setState({customers: [...el.state.customers.filter((c) => c.id !== customer.id)].sort((i, j) => i.order < j.order ? -1 : 1)});
                         }, 700);
 
                     }} className="cardExpandableHeader" align="center"
                                 type="headline" component="h3" style={{height: "2em"}}>
-                        <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{client.name}</span>
+                        <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{customer.name}</span>
                     </Typography>
                     <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
-                              in={client.expanded}
+                              in={customer.expanded}
                               unmountOnExit
-                              className={"chat"+client.id}
+                              className={"chat" + customer.id}
                     >
                         <div style={{display: "flex", height: h15, flexFlow: "column"}}>
                             <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
                                 <ChatFeed
-                                    messages={client.messages}
-                                    isTyping={client.is_typing}
+                                    messages={customer.messages}
+                                    isTyping={customer.is_typing}
                                     hasInputField={false}
                                     showSenderName
                                     bubblesCentered={false}
@@ -175,19 +212,24 @@ class _ChatsComponent extends Component {
                         </div>
                     </Collapse>
                 </Paper>
-                <Paper key={10000+client.id} elevation={10} style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
-                    <form onSubmit={e => this.onMessageSubmit(client, e)}>
-                        <input
-                            style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
-                            placeholder="Введите сообщение..."
-                            className="message-input"
-                            value = {client.reply}
-                            onChange={(e)=>{
-                                client.reply = e.target.value;
-                                this.setState({clients: [...this.state.clients.filter((c)=>c.id !== client.id), client].sort( (i,j) => i.order < j.order? -1: 1)});
-                            }}
-
-                        />
+                <Paper key={10000 + customer.id} elevation={10}
+                       style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
+                    <form onSubmit={e => this.onMessageSubmit(customer, e)}>
+                        <div style={{display: "flex", flexFlow: "row"}}>
+                            <div style={{flex: 1}}>
+                                <input
+                                    style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
+                                    placeholder="Введите сообщение..."
+                                    className="message-input"
+                                    value={customer.reply}
+                                    onChange={(e) => {
+                                        customer.reply = e.target.value;
+                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                                    }}
+                                />
+                            </div>
+                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>
+                        </div>
                     </form>
                 </Paper>
             </div>
@@ -196,18 +238,17 @@ class _ChatsComponent extends Component {
 
     render() {
         // console.log("Chat props", this.props);
-
         return (
             <div style={{margin: "1%"}}>
                 {this.props.isLoading ? <Loading/> : ""}
                 <div style={{
                     display: "flex",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr));",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))",
                     flexWrap: "wrap",
                     gridTemplateRows: "auto",
                     gridGap: "20px", justifyContent: "start", alignContent: "start",
                 }}>
-                    {this.state.clients.map((client, index) => this.renderSingleChat(client))}
+                    {this.state.customers.map((customer, index) => this.renderSingleChat(customer))}
                 </div>
             </div>
         );

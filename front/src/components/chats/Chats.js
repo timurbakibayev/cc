@@ -6,7 +6,9 @@ import Typography from 'material-ui/Typography';
 
 import Paper from 'material-ui/Paper';
 
-import SendIcon from 'material-ui-icons/Message';
+import SendIcon from 'material-ui-icons/Send';
+import SendingIcon from 'material-ui-icons/CloudCircle';
+
 
 import './../general.css'
 import {Link} from 'react-router-dom';
@@ -43,24 +45,7 @@ class _ChatsComponent extends Component {
         this.messagesRef = {};
         this.state = {
             editField: {},
-            customers: [
-                {
-                    id: 10,
-                    name: "Загрузка...",
-                    messages: [
-                        new Message({
-                            id: 1,
-                            message: "Сообщения загружаются",
-                        }), // Gray bubble
-                        new Message({id: 0, message: "ОК, я жду..."}), // Blue bubble
-                    ],
-                    is_typing: false,
-                    expanded: true,
-                    order: 1,
-                    reply: "",
-                    ref: null,
-                },
-            ].sort((i, j) => i.order < j.order ? -1 : 1),
+            customers: [],
         }
     }
 
@@ -70,7 +55,7 @@ class _ChatsComponent extends Component {
     }
 
     async refreshMessages() {
-        console.log("Requesting from " + url_messages + "...");
+        // console.log("Requesting from " + url_messages + "...");
         var response = await(fetch(
             url_messages,
             {
@@ -84,24 +69,52 @@ class _ChatsComponent extends Component {
         ));
         const text = await response.text();
         if (response.status === 200) {
-            const customers = JSON.parse(text).sort((i, j) => i.order < j.order ? -1 : 1);
-            customers.forEach((customer) => {
+            const result = JSON.parse(text).sort((i, j) => i.order < j.order ? -1 : 1);
+            let customers = this.state.customers;
+            result.forEach((customer) => {
                 customer.expanded = true;
                 customer.sending = false;
-                var messageObjects = [];
+                let messageObjects = [];
                 customer.messages.forEach((message) => {
                     messageObjects.push(new Message(message));
                 });
                 customer.messages = messageObjects;
+                if (customers.filter((c)=>c.id === customer.id).length === 0) {
+                    customers.push(customer);
+                    customers = customers.sort((i, j) => i.order < j.order ? -1 : 1);
+                    this.setState({customers: customers});
+                    setTimeout(
+                        ()=>{
+                            try {
+                                const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
+                                objDiv.scrollTop = 100000;
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }
+                        ,500)
+                } else {
+                    let the_customer = customers.filter((c)=>c.id === customer.id)[0];
+                    if (the_customer.messages.length !== customer.messages.length) {
+                        the_customer.messages = customer.messages;
+                        setTimeout(
+                            ()=>{
+                                try {
+                                    const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
+                                    objDiv.scrollTop = 100000;
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            }
+                            ,500)
+                    }
+                }
             });
-
-            this.setState({customers: customers});
-            console.log("messages", customers);
         }
     }
 
     componentDidMount() {
-        this.refreshMessages();
+        setInterval(this.refreshMessages.bind(this), 2000);
         this.state.customers.forEach((customer) => {
             try {
                 const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
@@ -120,6 +133,8 @@ class _ChatsComponent extends Component {
 
     async onMessageSubmit(customer, e) {
         e.preventDefault();
+        if (customer.sending)
+            return;
         console.log("New message push customer ", customer.name + ": " + customer.reply);
         customer.sending = true;
         this.setState({
@@ -145,11 +160,14 @@ class _ChatsComponent extends Component {
             }
         ));
 
+
         const text = await response.text();
         if (response.status === 201) {
-            customer.messages.push(
-                new Message({id: 0, message: customer.reply}),
-            );
+
+            // customer.messages.push(
+            //     new Message({id: 0, message: customer.reply}),
+            // );
+            customer.sending = false;
             customer.reply = "";
             this.setState({
                 customers: [
@@ -228,7 +246,8 @@ class _ChatsComponent extends Component {
                                     }}
                                 />
                             </div>
-                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>
+                            {!customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
+                            {customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
                         </div>
                     </form>
                 </Paper>

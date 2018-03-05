@@ -25,7 +25,7 @@ SECRET_KEY = 'hd^1gc!t!rl2grx2k*jkg$-t)sony_6il!oc(l32v3tv6r@n95'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [u'*',]
 
 
 # Application definition

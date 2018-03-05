@@ -18,6 +18,7 @@ from django.conf.urls import url, include
 from cc import views
 
 urlpatterns = [
+    url('^$', views.index),
     url('admin/', admin.site.urls),
     url(r'hide/(?P<pk>[0-9]+)/',views.messages),
     url(r'messages/',views.messages),

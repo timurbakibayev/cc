@@ -16,6 +16,11 @@ from rest_framework.response import Response
 from cc import telegram
 
 
+@csrf_exempt
+def index(request):
+    return render(request, "index.html", {})
+
+
 @api_view(['POST'])
 def new_message(request):
     if request.method == "POST":

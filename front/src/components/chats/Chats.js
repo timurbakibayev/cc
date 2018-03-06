@@ -3,12 +3,12 @@ import {findDOMNode} from 'react-dom';
 //https://github.com/brandonmowat/react-chat-ui:
 import {ChatFeed, Message} from 'react-chat-ui'
 import Typography from 'material-ui/Typography';
-
+import Menu, {MenuItem} from 'material-ui/Menu';
 import Paper from 'material-ui/Paper';
 
 import SendIcon from 'material-ui-icons/Send';
 import SendingIcon from 'material-ui-icons/CloudCircle';
-
+import TelegramIcon from '../Telegram_Messenger.png';
 
 import './../general.css'
 import {Link} from 'react-router-dom';
@@ -79,12 +79,12 @@ class _ChatsComponent extends Component {
                     messageObjects.push(new Message(message));
                 });
                 customer.messages = messageObjects;
-                if (customers.filter((c)=>c.id === customer.id).length === 0) {
+                if (customers.filter((c) => c.id === customer.id).length === 0) {
                     customers.push(customer);
                     customers = customers.sort((i, j) => i.order < j.order ? -1 : 1);
                     this.setState({customers: customers});
                     setTimeout(
-                        ()=>{
+                        () => {
                             try {
                                 const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
                                 objDiv.scrollTop = 100000;
@@ -92,9 +92,9 @@ class _ChatsComponent extends Component {
                                 console.log(e);
                             }
                         }
-                        ,500)
+                        , 500)
                 } else {
-                    let the_customer = customers.filter((c)=>c.id === customer.id)[0];
+                    let the_customer = customers.filter((c) => c.id === customer.id)[0];
                     if (customer.reply.length > 0 && the_customer.reply.length === 0)
                         the_customer.reply = customer.reply;
                     the_customer.name = customer.name;
@@ -107,7 +107,7 @@ class _ChatsComponent extends Component {
                                 .sort((i, j) => i.order < j.order ? -1 : 1)
                         });
                         setTimeout(
-                            ()=>{
+                            () => {
                                 try {
                                     const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
                                     objDiv.scrollTop = 100000;
@@ -115,7 +115,7 @@ class _ChatsComponent extends Component {
                                     console.log(e);
                                 }
                             }
-                            ,500)
+                            , 500)
                     }
                 }
             });
@@ -173,9 +173,9 @@ class _ChatsComponent extends Component {
         const text = await response.text();
         if (response.status === 201) {
 
-            customer.messages.push(
-                new Message({id: 0, message: customer.reply}),
-            );
+            // customer.messages.push(
+            //     new Message({id: 0, message: customer.reply}),
+            // );
             customer.sending = false;
             customer.reply = "";
             this.setState({
@@ -212,84 +212,137 @@ class _ChatsComponent extends Component {
                     <Typography onClick={() => {
                         customer.expanded = !customer.expanded;
                         this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
-                        const el = this;
-                        setTimeout(function () {
-                            el.setState({customers: [...el.state.customers.filter((c) => c.id !== customer.id)].sort((i, j) => i.order < j.order ? -1 : 1)});
-                        }, 700);
-
+                        setTimeout(() => {
+                            try {
+                                const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
+                                objDiv.scrollTop = 100000;
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }, 500)
                     }} className="cardExpandableHeader" align="center"
-                                type="headline" component="h3" style={{height: "2em"}}>
+                        type="headline" component="h3" style={{height: "2em"}}>
                         <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{customer.name}</span>
-                    </Typography>
-                    <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
-                              in={customer.expanded}
-                              unmountOnExit
-                              className={"chat" + customer.id}
-                    >
+                        </Typography>
+                        <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
+                        in={customer.expanded}
+                        unmountOnExit
+                        className={"chat" + customer.id}
+                        >
                         <div style={{display: "flex", height: h15, flexFlow: "column"}}>
-                            <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
-                                <ChatFeed
-                                    messages={customer.messages}
-                                    isTyping={customer.is_typing}
-                                    hasInputField={false}
-                                    showSenderName
-                                    bubblesCentered={false}
-                                />
-                            </div>
+                        <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
+                        <ChatFeed
+                        messages={customer.messages}
+                        isTyping={customer.is_typing}
+                        hasInputField={false}
+                        showSenderName
+                        bubblesCentered={false}
+                        />
                         </div>
-                    </Collapse>
-                </Paper>
-                <Paper key={10000 + customer.id} elevation={10}
-                       style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
-                    <form onSubmit={e => this.onMessageSubmit(customer, e)}>
+                        </div>
+                        </Collapse>
+                        </Paper>
+                        <Paper key={10000 + customer.id} elevation={10}
+                        style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
+                        <form onSubmit={e => this.onMessageSubmit(customer, e)}>
                         <div style={{display: "flex", flexFlow: "row"}}>
-                            <div style={{flex: 1}}>
-                                <input
-                                    style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
-                                    placeholder="Введите сообщение..."
-                                    className="message-input"
-                                    value={customer.reply}
-                                    onChange={(e) => {
-                                        customer.reply = e.target.value;
-                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
-                                    }}
-                                />
-                            </div>
-                            {!customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
-                            {customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
+                        <div style={{flex: 1}}>
+                        <input
+                        style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
+                        placeholder="Введите сообщение..."
+                        className="message-input"
+                        value={customer.reply}
+                        onChange={(e) => {
+                            customer.reply = e.target.value;
+                            this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                        }}
+                        />
                         </div>
-                    </form>
-                </Paper>
-            </div>
-        )
-    }
+                        {!customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
+                        {customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
+                        </div>
+                        </form>
+                        </Paper>
+                        </div>
+                        )
+                        }
 
-    render() {
-        // console.log("Chat props", this.props);
-        return (
-            <div style={{margin: "1%"}}>
-                {this.props.isLoading ? <Loading/> : ""}
-                <div style={{
-                    display: "flex",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))",
-                    flexWrap: "wrap",
-                    gridTemplateRows: "auto",
-                    gridGap: "20px", justifyContent: "start", alignContent: "start",
-                }}>
+                                renderSingleCustomer(customer) {
+                    return (
+                    <MenuItem key={7000 + customer.id} onClick={
+                        () => {
+                            this.setState({openR: false});
+                            let min = this.state.customers[0].order;
+                            this.state.customers.forEach((c) => {
+                                if (min > c.order)
+                                    min = c.order;
+                            })
+                            customer.order = min - 1;
+                            this.setState({
+                                customers: [
+                                    ...this.state.customers.filter((c) => c.id !== customer.id),
+                                    customer]
+                                    .sort((i, j) => i.order < j.order ? -1 : 1)
+                            });
+                            setTimeout(
+                                () => {
+                                    this.state.customers.forEach((c) => {
+                                        try {
+                                            const objDiv = findDOMNode(this).querySelector('.chat' + c.id);
+                                            objDiv.scrollTop = 100000;
+
+                                        } catch (e) {
+                                            console.log(e);
+                                        }
+                                    })
+                                }
+                                , 500)
+                        }}> <span style={{color: "white"}}> <img src = {TelegramIcon} height={"15"}/> {customer.name}</span>
+                    </MenuItem>
+                    )
+                }
+
+                       render() {
+                    // console.log("Chat props", this.props);
+                    return (
+                    <div style={{height: "900px"}}>
+                    <div style={{display: "flex", flexFlow: "row", height: "100%"}}>
+                    {this.props.isLoading ? <Loading/> : ""}
+                    <div style={{
+                        flex: 0.15,
+                        backgroundColor: "rgb(211, 61, 86)",
+                        color: "white",
+                        height: "100%",
+                        overflow: "auto"
+                    }}>
+                    <div>
+                    {this.state.customers.map((customer, index) => this.renderSingleCustomer(customer))}
+                    </div>
+                    </div>
+                    <div style={{
+                        margin: "1%",
+                        display: "flex",
+                        flex: 0.85,
+                        gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))",
+                        flexWrap: "wrap",
+                        gridTemplateRows: "auto",
+                        gridGap: "20px", justifyContent: "start", alignContent: "start",
+                    }}>
                     {this.state.customers.map((customer, index) => this.renderSingleChat(customer))}
-                </div>
-            </div>
-        );
-    }
-}
+                    </div>
+                    </div>
+                    </div>
+                    );
+                }
+                    }
 
-const mapStateToProps = (state) => ({});
+                    const mapStateToProps=(state) => ({});
 
-const mapDispatchToProps = {};
+                    const mapDispatchToProps={};
 
-// const ChatsComponent = connect(
-//     mapStateToProps,
-//     mapDispatchToProps
-// )(_ChatsComponent);
+                    // const ChatsComponent=connect(
+                    //     mapStateToProps,
+                    //     mapDispatchToProps
+                    // )(_ChatsComponent);
 
-export default _ChatsComponent;
+                       export default _ChatsComponent;

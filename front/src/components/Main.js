@@ -191,9 +191,9 @@ class _MainComponent extends Component {
         return (
             <MuiThemeProvider theme={theme}>
                 <HashRouter>
-                    <div>
-                        <div>
-                            <Switch>
+                    <div style={{height: "100%"}}>
+                        <div style={{height: "100%"}}>
+                            <Switch style={{height: "100%"}}>
                                 <Route exact path='/' component={ChatsComponent}/>
                             </Switch>
                         </div>

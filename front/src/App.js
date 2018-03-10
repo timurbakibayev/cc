@@ -12,7 +12,7 @@ class App extends Component {
     render() {
         return (
             <div className="App" style={{height: '100%'}}>
-                <header className="App-header" style={{backgroundColor: "#be123d"}}>
+                <header className="App-header" style={{backgroundColor: "#be123d", height: "7vh"}}>
                     <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> Centras Insurance Chat Center
                         </h1>
                 </header>

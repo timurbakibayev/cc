@@ -47,10 +47,16 @@ def messages(request):
         filtered_list = []
         for customer in Customer.objects.filter(hidden=False):
             messages = []
+            unread = 0
             for message in customer.message_set.all():
                 messages.append({"id": (1,0)[message.isReply], "message": message.message})
+                if message.isReply:
+                    unread = 0
+                else:
+                    unread += 1
             filtered_list.append({
                 "order": customer.ordering,
+                "unread": unread,
                 "id": customer.id,
                 "reply": customer.reply,
                 "name": customer.name,

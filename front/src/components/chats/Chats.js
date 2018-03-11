@@ -114,6 +114,12 @@ class _ChatsComponent extends Component {
                                 } catch (e) {
                                     console.log(e);
                                 }
+                                try {
+                                    const objDiv1 = findDOMNode(this).querySelector('.global_chat');
+                                    objDiv1.scrollTop = 100000;
+                                } catch (e) {
+                                    console.log(e);
+                                }
                             }
                             , 200)
                     }
@@ -223,9 +229,10 @@ class _ChatsComponent extends Component {
                                 console.log(e);
                             }
                         }, 200)
-                    }} className="cardExpandableHeader" align="center"
+                    }}
+                                className="cardExpandableHeader" align="center"
                                 type="headline" component="h3" style={{height: "2em"}}>
-                        <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{customer.name}</span>
+                        <span style={{fontSize: "1.6em", fontWeight: "bold", color: "white"}}>{customer.name}</span>
                     </Typography>
                     <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
                               in={customer.expanded}
@@ -293,7 +300,7 @@ class _ChatsComponent extends Component {
                             }, 200);
                     }} className="cardExpandableHeader" align="center"
                                 type="headline" component="h3" style={{height: "2em"}}>
-                        <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{customer.name}</span>
+                        <span style={{fontSize: "1.6em", fontWeight: "bold", color: "white"}}>{customer.name}</span>
                     </Typography>
                     <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: "70vh"}}
                               in={customer.expanded}

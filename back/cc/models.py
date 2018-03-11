@@ -1,6 +1,18 @@
 from django.db import models
 from django.db.models.signals import post_save
 
+
+class Template(models.Model):
+    question = models.CharField(max_length=5000, default="")
+    reply = models.CharField(max_length=5000, default="")
+
+    def __str__(self):
+        return self.question + ":" + self.reply
+
+    class Meta:
+        ordering = ["-id"]
+
+
 class Customer(models.Model):
     name = models.CharField(max_length=1000, default="-")
     firstContactTime = models.DateTimeField(auto_now_add=True)

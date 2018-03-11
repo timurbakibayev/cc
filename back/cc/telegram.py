@@ -7,7 +7,7 @@ from cc.models import Customer
 from cc.models import Message
 
 
-bot = telebot.TeleBot("558498918:AAHm5V6kAqwPnGNL4FlF9bMylxy6to3MmIM")
+bot = telebot.TeleBot("451447638:AAH7fIXtg1ASXNEz9VQEwNNTDQbiqt14rB8")
 
 fake_messages = [
     "Hi", "How are you?", "What are you doing?", "So what?", "What should I do?!!", "Hello, there!",

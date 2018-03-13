@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'cc',
+    'chatterbot.ext.django_chatterbot',
+    'bot'
 ]
 
 MIDDLEWARE = [
@@ -125,3 +127,16 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATIC_URL = '/static/'
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+
+CHATTERBOT = {
+    'name': 'Tech Support Bot',
+    'logic_adapters': [
+        'chatterbot.logic.MathematicalEvaluation',
+        'chatterbot.logic.TimeLogicAdapter',
+        'chatterbot.logic.BestMatch'
+    ],
+    'trainer': 'chatterbot.trainers.ChatterBotCorpusTrainer',
+    'training_data': [
+         'chatterbot.corpus.english.greetings'
+    ]
+}

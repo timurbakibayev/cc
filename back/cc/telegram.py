@@ -5,9 +5,10 @@ import telebot
 
 from cc.models import Customer
 from cc.models import Message
+from cc.telekey import key
+from cc.ai import ai
 
-
-bot = telebot.TeleBot("451447638:AAH7fIXtg1ASXNEz9VQEwNNTDQbiqt14rB8")
+bot = telebot.TeleBot(key)
 
 fake_messages = [
     "Hi", "How are you?", "What are you doing?", "So what?", "What should I do?!!", "Hello, there!",
@@ -40,6 +41,9 @@ def receive_all_messages(tele_message):
     message.message = tele_message.text
     message.isReply = False
     message.save()
+    ai_reply = ai(customer)
+    if len(ai_reply) > 0:
+        reply(customer.device_id, ai_reply, with_save=True, customer=customer)
     if thank_you:
         reply(customer.device_id, "Спасибо большое, {}. Чем мы можем Вам помочь?".format(customer.name), with_save=True, customer=customer)
 

@@ -3,7 +3,9 @@
 }
 
 .cardExpandableHeader {
-    background: #c7ddef;
+    background: #be123dCC;
+    color: #be123d;
+    border-bottom: 1px solid #466991;
     font-size: 1em;
     zoom: 0.8;
 }

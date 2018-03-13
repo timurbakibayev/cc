@@ -46,6 +46,7 @@ class _ChatsComponent extends Component {
         this.state = {
             editField: {},
             customers: [],
+            selected: -1,
         }
     }
 
@@ -92,11 +93,10 @@ class _ChatsComponent extends Component {
                                 console.log(e);
                             }
                         }
-                        , 500)
+                        , 200)
                 } else {
                     let the_customer = customers.filter((c) => c.id === customer.id)[0];
-                    if (customer.reply.length > 0 && the_customer.reply.length === 0)
-                        the_customer.reply = customer.reply;
+                    the_customer.unread = customer.unread;
                     the_customer.name = customer.name;
                     if (the_customer.messages.length !== customer.messages.length) {
                         the_customer.messages = customer.messages;
@@ -114,8 +114,14 @@ class _ChatsComponent extends Component {
                                 } catch (e) {
                                     console.log(e);
                                 }
+                                try {
+                                    const objDiv1 = findDOMNode(this).querySelector('.global_chat');
+                                    objDiv1.scrollTop = 100000;
+                                } catch (e) {
+                                    console.log(e);
+                                }
                             }
-                            , 500)
+                            , 200)
                     }
                 }
             });
@@ -178,6 +184,7 @@ class _ChatsComponent extends Component {
             // );
             customer.sending = false;
             customer.reply = "";
+            customer.unread = 0;
             this.setState({
                 customers: [
                     ...this.state.customers.filter((c) => c.id !== customer.id),
@@ -187,6 +194,8 @@ class _ChatsComponent extends Component {
             try {
                 const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
                 objDiv.scrollTop = 100000;
+                const objC = findDOMNode(this).querySelector('.global_chat');
+                objC.scrollTop = 100000;
             } catch (e) {
                 console.log(e);
             }
@@ -210,103 +219,169 @@ class _ChatsComponent extends Component {
             <div key={customer.id} style={{display: "flex", flexFlow: "column"}}>
                 <Paper elevation={10} style={{width: "300px", maxWidth: "300px", margin: "10px", height: h17}}>
                     <Typography onClick={() => {
-                        customer.expanded = !customer.expanded;
-                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                        //customer.expanded = !customer.expanded;
+                        this.setState({selected: customer.id});
                         setTimeout(() => {
                             try {
-                                const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
+                                const objDiv = findDOMNode(this).querySelector('.global_chat');
                                 objDiv.scrollTop = 100000;
                             } catch (e) {
                                 console.log(e);
                             }
-                        }, 500)
-                    }} className="cardExpandableHeader" align="center"
-                        type="headline" component="h3" style={{height: "2em"}}>
-                        <span style={{fontSize: "1.6em", fontWeight: "bold"}}>{customer.name}</span>
-                        </Typography>
-                        <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
-                        in={customer.expanded}
-                        unmountOnExit
-                        className={"chat" + customer.id}
-                        >
+                        }, 200)
+                    }}
+                                className="cardExpandableHeader" align="center"
+                                type="headline" component="h3" style={{height: "2em"}}>
+                        <span style={{fontSize: "1.6em", fontWeight: "bold", color: "white"}}>{customer.name}</span>
+                    </Typography>
+                    <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: h15}}
+                              in={customer.expanded}
+                              unmountOnExit
+                              className={"chat" + customer.id}
+                    >
                         <div style={{display: "flex", height: h15, flexFlow: "column"}}>
-                        <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
-                        <ChatFeed
-                        messages={customer.messages}
-                        isTyping={customer.is_typing}
-                        hasInputField={false}
-                        showSenderName
-                        bubblesCentered={false}
-                        />
+                            <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
+                                <ChatFeed
+                                    messages={customer.messages}
+                                    isTyping={customer.is_typing}
+                                    hasInputField={false}
+                                    showSenderName
+                                    bubblesCentered={false}
+                                />
+                            </div>
                         </div>
-                        </div>
-                        </Collapse>
-                        </Paper>
-                        <Paper key={10000 + customer.id} elevation={10}
-                        style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
-                        <form onSubmit={e => this.onMessageSubmit(customer, e)}>
+                    </Collapse>
+                </Paper>
+                <Paper key={10000 + customer.id} elevation={10}
+                       style={{width: "300px", marginTop: -10, marginLeft: 10, height: "2em"}}>
+                    <form onSubmit={e => this.onMessageSubmit(customer, e)}>
                         <div style={{display: "flex", flexFlow: "row"}}>
-                        <div style={{flex: 1}}>
-                        <input
-                        style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
-                        placeholder="Введите сообщение..."
-                        className="message-input"
-                        value={customer.reply}
-                        onChange={(e) => {
-                            customer.reply = e.target.value;
-                            this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
-                        }}
-                        />
+                            <div style={{flex: 1}}>
+                                <input
+                                    style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
+                                    placeholder="Введите сообщение..."
+                                    className="message-input"
+                                    value={customer.reply}
+                                    onChange={(e) => {
+                                        customer.reply = e.target.value;
+                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                                    }}
+                                />
+                            </div>
+                            {!customer.sending &&
+                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
+                            {customer.sending &&
+                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
                         </div>
-                        {!customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
-                        {customer.sending && <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
-                        </div>
-                        </form>
-                        </Paper>
-                        </div>
-                        )
-                        }
+                    </form>
+                </Paper>
+            </div>
+        )
+    }
 
-                                renderSingleCustomer(customer) {
-                    return (
-                    <MenuItem key={7000 + customer.id} onClick={
-                        () => {
-                            this.setState({openR: false});
-                            let min = this.state.customers[0].order;
+
+    renderGlobalChat(customer) {
+        var h17 = customer.expanded ? "17em" : "auto";
+        var h15 = customer.expanded ? "15em" : "auto";
+        return (
+            <div key={customer.id} style={{display: "flex", width: "98%", flexFlow: "column", height: "80vh"}}>
+                <Paper elevation={10} style={{width: "100%", maxWidth: "100%", margin: "1%", flex: 0.9}}>
+                    <Typography onClick={() => {
+                        this.setState({selected: -1});
+                        setTimeout(() => {
                             this.state.customers.forEach((c) => {
-                                if (min > c.order)
-                                    min = c.order;
-                            })
-                            customer.order = min - 1;
-                            this.setState({
-                                customers: [
-                                    ...this.state.customers.filter((c) => c.id !== customer.id),
-                                    customer]
-                                    .sort((i, j) => i.order < j.order ? -1 : 1)
-                            });
-                            setTimeout(
-                                () => {
-                                    this.state.customers.forEach((c) => {
-                                        try {
-                                            const objDiv = findDOMNode(this).querySelector('.chat' + c.id);
-                                            objDiv.scrollTop = 100000;
-
-                                        } catch (e) {
-                                            console.log(e);
-                                        }
-                                    })
+                                try {
+                                    const objDiv = findDOMNode(this).querySelector('.chat' + c.id);
+                                    objDiv.scrollTop = 100000;
+                                } catch (e) {
+                                    console.log(e);
                                 }
-                                , 500)
-                        }}> <span style={{color: "white"}}> <img src = {TelegramIcon} height={"15"}/> {customer.name}</span>
-                    </MenuItem>
-                    )
-                }
+                            })
+                            }, 200);
+                    }} className="cardExpandableHeader" align="center"
+                                type="headline" component="h3" style={{height: "2em"}}>
+                        <span style={{fontSize: "1.6em", fontWeight: "bold", color: "white"}}>{customer.name}</span>
+                    </Typography>
+                    <Collapse style={{overflowY: 'auto', overflowX: 'auto', height: "70vh"}}
+                              in={customer.expanded}
+                              unmountOnExit
+                              className={"global_chat"}
+                    >
+                        <div style={{display: "flex", height: "100%", flexFlow: "column"}}>
+                            <div style={{margin: 5, marginBottom: "1.5em"}}>
+                                <ChatFeed
+                                    messages={customer.messages}
+                                    isTyping={customer.is_typing}
+                                    hasInputField={false}
+                                    showSenderName
+                                    bubblesCentered={false}
+                                />
+                            </div>
+                        </div>
+                    </Collapse>
+                </Paper>
+                <Paper key={10000 + customer.id} elevation={10}
+                       style={{width: "100%", marginTop: -10, marginLeft: 10, flex: 0.1}}>
+                    <form onSubmit={e => this.onMessageSubmit(customer, e)}>
+                        <div style={{display: "flex", flexFlow: "row"}}>
+                            <div style={{flex: 1}}>
+                                <input
+                                    style={{width: "95%", border: 0, fontSize: "1.5em", outline: "none"}}
+                                    placeholder="Введите сообщение..."
+                                    className="message-input"
+                                    value={customer.reply}
+                                    onChange={(e) => {
+                                        customer.reply = e.target.value;
+                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                                    }}
+                                />
+                            </div>
+                            {!customer.sending &&
+                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendIcon/></div>}
+                            {customer.sending &&
+                            <div onClick={e => this.onMessageSubmit(customer, e)}><SendingIcon/></div>}
+                        </div>
+                    </form>
+                </Paper>
+            </div>
+        )
+    }
 
-                       render() {
-                    // console.log("Chat props", this.props);
-                    return (
-                    <div style={{height: "900px"}}>
-                    <div style={{display: "flex", flexFlow: "row", height: "100%"}}>
+    renderSingleCustomer(customer) {
+        return (
+            <MenuItem key={7000 + customer.id}
+                      onClick={
+                () => {
+                    //this.setState({openR: false});
+                    this.setState({selected: this.state.selected === customer.id?-1:customer.id});
+                    setTimeout(
+                        () => {
+                            this.state.customers.forEach((c) => {
+                                try {
+                                    const objDiv = findDOMNode(this).querySelector('.chat'+c.id);
+                                    objDiv.scrollTop = 100000;
+                                } catch (e) {
+                                    console.log(e);
+                                }
+                            });
+                            try {
+                                const objDiv = findDOMNode(this).querySelector('.global_chat');
+                                objDiv.scrollTop = 100000;
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }
+                        , 200)
+                }}> <span style={{color: "white"}}> <img src={TelegramIcon} height={"15"} style={{visibility: customer.unread === 0?"hidden":"visible"}}/> {customer.name} <b>{customer.unread === 0?"":customer.unread}</b></span>
+            </MenuItem>
+        )
+    }
+
+    render() {
+        // console.log("Chat props", this.props);
+        return (
+            <div style={{height: "85vh"}}>
+                <div style={{display: "flex", flexFlow: "row", height: "100%"}}>
                     {this.props.isLoading ? <Loading/> : ""}
                     <div style={{
                         flex: 0.15,
@@ -315,34 +390,45 @@ class _ChatsComponent extends Component {
                         height: "100%",
                         overflow: "auto"
                     }}>
-                    <div>
-                    {this.state.customers.map((customer, index) => this.renderSingleCustomer(customer))}
+                        <div>
+                            {this.state.customers.map((customer, index) => this.renderSingleCustomer(customer))}
+                        </div>
                     </div>
-                    </div>
-                    <div style={{
+                    {this.state.selected === -1 && <div style={{
+                        overflow: "auto",
                         margin: "1%",
                         display: "flex",
+                        height: "100%",
                         flex: 0.85,
                         gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))",
                         flexWrap: "wrap",
                         gridTemplateRows: "auto",
                         gridGap: "20px", justifyContent: "start", alignContent: "start",
                     }}>
-                    {this.state.customers.map((customer, index) => this.renderSingleChat(customer))}
-                    </div>
-                    </div>
-                    </div>
-                    );
-                }
-                    }
+                        {this.state.customers.map((customer, index) => this.renderSingleChat(customer))}
+                    </div>}
+                    {this.state.selected > -1 && <div style={{
+                        margin: "1%",
+                        display: "flex",
+                        flex: 0.85,
+                    }}>
+                        {this.state.customers.filter((c)=>c.id === this.state.selected)
+                            .map((customer, index) => this.renderGlobalChat(customer))}
+                    </div>}
+                </div>
+            </div>
+        );
+    }
+}
 
-                    const mapStateToProps=(state) => ({});
+const mapStateToProps = (state) => ({});
 
-                    const mapDispatchToProps={};
+const mapDispatchToProps = {};
 
-                    // const ChatsComponent=connect(
-                    //     mapStateToProps,
-                    //     mapDispatchToProps
-                    // )(_ChatsComponent);
 
-                       export default _ChatsComponent;
+// const ChatsComponent=connect(
+//     mapStateToProps,
+//     mapDispatchToProps
+// )(_ChatsComponent);
+
+export default _ChatsComponent;

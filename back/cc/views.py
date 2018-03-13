@@ -32,12 +32,13 @@ def new_message(request):
         the_message.customer = Customer.objects.get(pk=int(customer))
         the_message.isReply = True
         the_message.message = message
-        the_message.save()
         try:
             if the_message.customer.device_type == "telegram":
                 telegram.reply(the_message.customer.device_id, the_message.message)
+                the_message.save()
         except Exception as e:
             print("failed to send to customer: " + str(e))
+            return Response({"result": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({"result":"ok"}, status=status.HTTP_201_CREATED)
 
 
@@ -47,10 +48,16 @@ def messages(request):
         filtered_list = []
         for customer in Customer.objects.filter(hidden=False):
             messages = []
+            unread = 0
             for message in customer.message_set.all():
                 messages.append({"id": (1,0)[message.isReply], "message": message.message})
+                if message.isReply:
+                    unread = 0
+                else:
+                    unread += 1
             filtered_list.append({
                 "order": customer.ordering,
+                "unread": unread,
                 "id": customer.id,
                 "reply": customer.reply,
                 "name": customer.name,

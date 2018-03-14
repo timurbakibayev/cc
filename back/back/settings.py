@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'cc',
-    'chatterbot.ext.django_chatterbot',
-    'bot'
+    'botfull',
 ]
 
 MIDDLEWARE = [

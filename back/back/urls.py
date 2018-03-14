@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'hide/(?P<pk>[0-9]+)/',views.messages),
     url(r'messages/',views.messages),
     url(r'new_message/',views.new_message),
-    url(r'bot/', include('bot.urls')),
+    url(r'botfull/', include('botfull.urls', namespace='chatterbot')),
 ]

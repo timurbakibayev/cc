@@ -138,5 +138,6 @@ CHATTERBOT = {
     'trainer': 'chatterbot.trainers.ChatterBotCorpusTrainer',
     'training_data': [
          'chatterbot.corpus.english.greetings'
-    ]
+    ],
+    'read_only': 'True'
 }

@@ -131,7 +131,6 @@ CHATTERBOT = {
     'name': 'Tech Support Bot',
     'logic_adapters': [
         'chatterbot.logic.MathematicalEvaluation',
-        'chatterbot.logic.TimeLogicAdapter',
         'chatterbot.logic.BestMatch'
     ],
     'trainer': 'chatterbot.trainers.ChatterBotCorpusTrainer',

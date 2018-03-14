@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, response
@@ -42,6 +43,13 @@ def new_message(request):
         return Response({"result":"ok"}, status=status.HTTP_201_CREATED)
 
 
+def human_time(the_time):
+    the_time = str(the_time + timedelta(hours=6))[:16]
+    today = str(datetime.datetime.now())
+    if today[:10] == the_time[:10]:
+        the_time = the_time[11:]
+    return str(the_time)[:16]
+
 @csrf_exempt
 def messages(request):
     if request.method == "GET":
@@ -49,8 +57,13 @@ def messages(request):
         for customer in Customer.objects.filter(hidden=False):
             messages = []
             unread = 0
+
             for message in customer.message_set.all():
-                messages.append({"id": (1,0)[message.isReply], "message": message.message})
+                messages.append({"id": message.id,
+                                 "reply": (0,1)[message.isReply],
+                                 "message": message.message,
+                                 "time": human_time(message.time),
+                                 })
                 if message.isReply:
                     unread = 0
                 else:

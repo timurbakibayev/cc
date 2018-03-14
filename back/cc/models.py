@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -24,12 +25,13 @@ class Customer(models.Model):
     device_type = models.CharField(max_length=1000, default="telegram")
     context = models.CharField(max_length=1000, default="")
     operator_id = models.IntegerField(default=0)
+    last_message_time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name + " " + self.device_type
 
     class Meta:
-        ordering = ["ordering"]
+        ordering = ["-last_message_time"]
 
 
 class Message(models.Model):
@@ -78,5 +80,15 @@ def on_customer_save(sender, instance, **kwargs):
         instance.save()
 
 
+def on_message_save(sender, instance, **kwargs):
+    if kwargs['created']:
+        try:
+            c = Customer.objects.get(pk=instance.customer_id)
+            c.ordering = -(instance.time.replace(tzinfo=None) - datetime.datetime(2018,1,1)).total_seconds()
+            c.save()
+        except Exception as e:
+            print(str(e))
+            pass
 
 post_save.connect(on_customer_save, sender=Customer)
+post_save.connect(on_message_save, sender=Message)

@@ -38,6 +38,11 @@ const token = "default_token";
 const url_messages = `${URL}messages/`;
 const url_new_message = `${URL}new_message/`;
 
+const sorted = (customers) =>
+    customers.sort((i,j) =>
+        i.unread < j.unread? 1 : i.unread > j.unread? -1 : (i.order < j.order ? -1 : 1)
+    );
+
 class _ChatsComponent extends Component {
 
     constructor(e) {
@@ -55,6 +60,8 @@ class _ChatsComponent extends Component {
         console.log("Chat Component Will Mount", this.props);
     }
 
+
+
     async refreshMessages() {
         // console.log("Requesting from " + url_messages + "...");
         var response = await(fetch(
@@ -68,21 +75,23 @@ class _ChatsComponent extends Component {
                 }
             }
         ));
+
         const text = await response.text();
         if (response.status === 200) {
-            const result = JSON.parse(text).sort((i, j) => i.order < j.order ? -1 : 1);
+            const result = sorted(JSON.parse(text));
+            console.log("Got:",result);
             let customers = this.state.customers;
             result.forEach((customer) => {
                 customer.expanded = true;
                 customer.sending = false;
                 let messageObjects = [];
                 customer.messages.forEach((message) => {
-                    messageObjects.push(new Message(message));
+                    messageObjects.push(message);
                 });
                 customer.messages = messageObjects;
                 if (customers.filter((c) => c.id === customer.id).length === 0) {
                     customers.push(customer);
-                    customers = customers.sort((i, j) => i.order < j.order ? -1 : 1);
+                    customers = sorted(customers);
                     this.setState({customers: customers});
                     setTimeout(
                         () => {
@@ -96,15 +105,15 @@ class _ChatsComponent extends Component {
                         , 200)
                 } else {
                     let the_customer = customers.filter((c) => c.id === customer.id)[0];
+                    the_customer.order = customer.order;
                     the_customer.unread = customer.unread;
                     the_customer.name = customer.name;
                     if (the_customer.messages.length !== customer.messages.length) {
                         the_customer.messages = customer.messages;
                         this.setState({
-                            customers: [
+                            customers: sorted([
                                 ...this.state.customers.filter((c) => c.id !== the_customer.id),
-                                the_customer]
-                                .sort((i, j) => i.order < j.order ? -1 : 1)
+                                the_customer])
                         });
                         setTimeout(
                             () => {
@@ -153,10 +162,9 @@ class _ChatsComponent extends Component {
         console.log("New message push customer ", customer.name + ": " + customer.reply);
         customer.sending = true;
         this.setState({
-            customers: [
+            customers: sorted([
                 ...this.state.customers.filter((c) => c.id !== customer.id),
-                customer]
-                .sort((i, j) => i.order < j.order ? -1 : 1)
+                customer])
         });
 
         const response = await(fetch(
@@ -186,10 +194,9 @@ class _ChatsComponent extends Component {
             customer.reply = "";
             customer.unread = 0;
             this.setState({
-                customers: [
+                customers: sorted([
                     ...this.state.customers.filter((c) => c.id !== customer.id),
-                    customer]
-                    .sort((i, j) => i.order < j.order ? -1 : 1)
+                    customer])
             });
             try {
                 const objDiv = findDOMNode(this).querySelector('.chat' + customer.id);
@@ -203,10 +210,9 @@ class _ChatsComponent extends Component {
             alert("We've got problem: " + response.status);
             customer.sending = false;
             this.setState({
-                customers: [
+                customers: sorted([
                     ...this.state.customers.filter((c) => c.id !== customer.id),
-                    customer]
-                    .sort((i, j) => i.order < j.order ? -1 : 1)
+                    customer])
             });
         }
     }
@@ -230,6 +236,7 @@ class _ChatsComponent extends Component {
                             }
                         }, 200)
                     }}
+
                                 className="cardExpandableHeader" align="center"
                                 type="headline" component="h3" style={{height: "2em"}}>
                         <span style={{fontSize: "1.6em", fontWeight: "bold", color: "white"}}>{customer.name}</span>
@@ -239,15 +246,29 @@ class _ChatsComponent extends Component {
                               unmountOnExit
                               className={"chat" + customer.id}
                     >
+
                         <div style={{display: "flex", height: h15, flexFlow: "column"}}>
                             <div style={{zoom: 0.7, margin: 5, marginBottom: "1.5em"}}>
-                                <ChatFeed
-                                    messages={customer.messages}
-                                    isTyping={customer.is_typing}
-                                    hasInputField={false}
-                                    showSenderName
-                                    bubblesCentered={false}
-                                />
+                                <div style={{display: "flex", flexFlow: "column", width: "100%"}}>
+                                    {customer.messages.map((message) => (
+                                        <div key={message.id} style={{display:"block", flexFlow:"column",
+                                            color: "white",
+                                            maxWidth: "425px",
+                                            padding: "8px 14px",
+                                            float: message.reply === 1?"right":"left",
+                                            marginLeft: message.reply === 1?"30%":"",
+                                            marginRight: message.reply === 1?"":"30%",
+                                        }}>
+                                            <div style={{display: "flex",
+                                                backgroundColor: message.reply === 1?"rgb(0, 132, 255)":"rgb(132,132,200)",
+                                                borderRadius: "10px",
+                                                padding: "10px"
+                                            }}>{ message.message }</div>
+                                            <div style={{color: "gray", fontSize: "12px", float: message.reply === 1?"right":"left",}}>{ message.time }</div>
+                                        </div>
+                                        )
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </Collapse>
@@ -264,7 +285,7 @@ class _ChatsComponent extends Component {
                                     value={customer.reply}
                                     onChange={(e) => {
                                         customer.reply = e.target.value;
-                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                                        this.setState({customers: sorted([...this.state.customers.filter((c) => c.id !== customer.id), customer])});
                                     }}
                                 />
                             </div>
@@ -309,17 +330,30 @@ class _ChatsComponent extends Component {
                     >
                         <div style={{display: "flex", height: "100%", flexFlow: "column"}}>
                             <div style={{margin: 5, marginBottom: "1.5em"}}>
-                                <ChatFeed
-                                    messages={customer.messages}
-                                    isTyping={customer.is_typing}
-                                    hasInputField={false}
-                                    showSenderName
-                                    bubblesCentered={false}
-                                />
+                                <div style={{display: "flex", flexFlow: "column", width: "100%"}}>
+                                    {customer.messages.map((message) => (
+                                            <div key={message.id} style={{display:"block", flexFlow:"column",
+                                                color: "white",
+                                                padding: "8px 14px",
+                                                float: message.reply === 1?"right":"left",
+                                                marginLeft: message.reply === 1?"30%":"",
+                                                marginRight: message.reply === 1?"":"30%",
+                                            }}>
+                                                <div style={{display: "flex",
+                                                    backgroundColor: message.reply === 1?"rgb(0, 132, 255)":"rgb(132,132,200)",
+                                                    borderRadius: "10px",
+                                                    padding: "10px"
+                                                }}>{ message.message }</div>
+                                                <div style={{color: "gray", fontSize: "12px", float: message.reply === 1?"right":"left",}}>{ message.time }</div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </Collapse>
                 </Paper>
+
                 <Paper key={10000 + customer.id} elevation={10}
                        style={{width: "100%", marginTop: -10, marginLeft: 10, flex: 0.1}}>
                     <form onSubmit={e => this.onMessageSubmit(customer, e)}>
@@ -332,7 +366,7 @@ class _ChatsComponent extends Component {
                                     value={customer.reply}
                                     onChange={(e) => {
                                         customer.reply = e.target.value;
-                                        this.setState({customers: [...this.state.customers.filter((c) => c.id !== customer.id), customer].sort((i, j) => i.order < j.order ? -1 : 1)});
+                                        this.setState({customers: sorted([...this.state.customers.filter((c) => c.id !== customer.id), customer])});
                                     }}
                                 />
                             </div>

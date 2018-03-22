@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import MainComponent from './components/Main.js';
 import {HashRouter, Route, Switch} from 'react-router-dom';
-import logo from './logo_centras.png';
+import logo from './logo_almau.png';
 
 class App extends Component {
     componentDidMount() {
@@ -13,7 +13,7 @@ class App extends Component {
         return (
             <div className="App" style={{height: '100%'}}>
                 <header className="App-header" style={{backgroundColor: "#be123d", height: "7vh"}}>
-                    <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> Centras Insurance Chat Center
+                    <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> Almau - Чат-бот для абитуриентов
                         </h1>
                 </header>
                 <HashRouter>

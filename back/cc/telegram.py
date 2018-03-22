@@ -34,7 +34,7 @@ def receive_all_messages(tele_message):
         customer.device_id = tele_message.chat.id
         customer.context = "name"
         customer.save()
-        reply(customer.device_id, "Добро пожаловать в чат-центр Centras!", with_save=True, customer=customer)
+        reply(customer.device_id, "Добро пожаловать в чат-центр AlmaU!", with_save=True, customer=customer)
         reply(customer.device_id, "Пожалуйста, введите своё имя", with_save=True, customer=customer)
     message = Message()
     message.customer = customer

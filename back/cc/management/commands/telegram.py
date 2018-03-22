@@ -17,7 +17,7 @@ def is_lock_free():
         print("Running on windows, no control")
         return True
     try:
-        lock_id = "timurbakibayev.telegram"   # this should be unique. using your username as a prefix is a convention
+        lock_id = "jenaroshat.telegram"   # this should be unique. using your username as a prefix is a convention
         lock_socket.bind('\0' + lock_id)
         print("Acquired lock %r" % (lock_id,))
         return True

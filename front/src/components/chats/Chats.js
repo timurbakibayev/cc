@@ -280,7 +280,7 @@ class _ChatsComponent extends Component {
                             <div style={{flex: 1}}>
                                 <input
                                     style={{width: "95%", border: 0, fontSize: "1em", outline: "none"}}
-                                    placeholder="Введите сообщение..."
+                                    placeholder="Enter your message..."
                                     className="message-input"
                                     value={customer.reply}
                                     onChange={(e) => {
@@ -361,7 +361,7 @@ class _ChatsComponent extends Component {
                             <div style={{flex: 1}}>
                                 <input
                                     style={{width: "95%", border: 0, fontSize: "1.5em", outline: "none"}}
-                                    placeholder="Введите сообщение..."
+                                    placeholder="Enter your message..."
                                     className="message-input"
                                     value={customer.reply}
                                     onChange={(e) => {

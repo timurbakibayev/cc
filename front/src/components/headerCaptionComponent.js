@@ -5,7 +5,7 @@ class _HeaderCaptionComponent extends Component {
 
     render() {
         console.log("headerCaptionComponent props", this.props);
-        return (<span>Almau - Чат-бот для абитуриентов</span>)
+        return (<span>Almau - Chat-Center</span>)
     }
 }
 

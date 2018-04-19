@@ -13,7 +13,7 @@ class App extends Component {
         return (
             <div className="App" style={{height: '100%'}}>
                 <header className="App-header" style={{backgroundColor: "#be123d", height: "7vh"}}>
-                    <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> Almau - Чат-бот для абитуриентов
+                    <h1 className="App-title" style={{color: "white"}}><img src={logo} style={{height: "1.5em"}}/> AlmaU University Chat-Center
                         </h1>
                 </header>
                 <HashRouter>

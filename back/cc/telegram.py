@@ -34,8 +34,8 @@ def receive_all_messages(tele_message):
         customer.device_id = tele_message.chat.id
         customer.context = "name"
         customer.save()
-        reply(customer.device_id, "Добро пожаловать в чат-центр AlmaU!", with_save=True, customer=customer)
-        reply(customer.device_id, "Пожалуйста, введите своё имя", with_save=True, customer=customer)
+        reply(customer.device_id, "Welcome to AlmaU Chat-Center!", with_save=True, customer=customer)
+        reply(customer.device_id, "Please, enter your name", with_save=True, customer=customer)
     message = Message()
     message.customer = customer
     message.message = tele_message.text
@@ -45,7 +45,7 @@ def receive_all_messages(tele_message):
     if len(ai_reply) > 0:
         reply(customer.device_id, ai_reply, with_save=True, customer=customer)
     if thank_you:
-        reply(customer.device_id, "Спасибо большое, {}. Чем мы можем Вам помочь?".format(customer.name), with_save=True, customer=customer)
+        reply(customer.device_id, "Thank you, {}. How can we help you?".format(customer.name), with_save=True, customer=customer)
 
 
 def reply(device_id, message, with_save=False, customer=None):
